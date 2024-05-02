@@ -3,6 +3,7 @@ const router = express.Router();
 const { connectDB } = require('../config/Database');
 const jwt = require('jsonwebtoken');
 const { validateToken } = require('../middleware/Middleware');
+const { ObjectId } = require('mongodb');
 
 // Middleware para conectar a la base de datos antes de cada solicitud
 router.use(async (req, res, next) => {
