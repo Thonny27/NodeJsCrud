@@ -54,7 +54,7 @@ router.get('/users/:id', validateToken, async (req, res) => {
         } else {
             const userId = req.params.id;
             try {
-                const user = await req.db.collection('users').findOne({ _id: new Object(userId) });
+                const user = await req.db.collection('users').findOne({ _id: new ObjectId(userId) });
                 if (!user) {
                     res.status(404).json({ message: 'User not found' });
                     return;
@@ -116,7 +116,7 @@ router.delete('/users/:id', validateToken, async (req, res) => {
         } else {
             const userId = req.params.id;
             try {
-                const result = await req.db.collection('users').deleteOne({ _id: new Object(userId) });
+                const result = await req.db.collection('users').deleteOne({ _id: new ObjectId(userId) });
                 res.json(result);
             } catch (err) {
                 console.error('Error deleting user:', err);
