@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { connectDB } = require('../config/Database');
 const jwt = require('jsonwebtoken');
+const { validateToken } = require('../middleware/Middleware');
+const { ObjectId } = require('mongodb');
 
 // Middleware para conectar a la base de datos antes de cada solicitud
 router.use(async (req, res, next) => {
@@ -27,7 +29,7 @@ router.get('/jobs', validateToken, async (req, res) => {
             
             try {
                 const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
-                const users = await req.db.collection('users')
+                const users = await req.db.collection('jobs')
                     .find()
                     .skip(skip)
                     .limit(pageSize)
@@ -45,7 +47,7 @@ router.get('/jobs', validateToken, async (req, res) => {
 });
 
 // Obtener un usuario por ID
-router.get('/job/:id', validateToken, async (req, res) => {
+router.get('/job/find/:id', validateToken, async (req, res) => {
     jwt.verify(req.token, 'secret', async (err, data) => {
         if (err) {
             console.log(req.token);
@@ -53,7 +55,7 @@ router.get('/job/:id', validateToken, async (req, res) => {
         } else {
             const userId = req.params.id;
             try {
-                const user = await req.db.collection('users').findOne({ _id: new Object(userId) });
+                const user = await req.db.collection('jobs').findOne({ _id: new ObjectId(userId) });
                 if (!user) {
                     res.status(404).json({ message: 'User not found' });
                     return;
@@ -68,7 +70,7 @@ router.get('/job/:id', validateToken, async (req, res) => {
 });
 
 // Crear un nuevo usuario
-router.post('/job/add', validateToken, async (req, res) => {
+router.post('/job/new', validateToken, async (req, res) => {
     jwt.verify(req.token, 'secret', async (err, data) => {
         if (err) {
             console.log(req.token);
@@ -76,7 +78,7 @@ router.post('/job/add', validateToken, async (req, res) => {
         } else {
             const newUser = req.body;
             try {
-                const result = await req.db.collection('users').insertOne(newUser);
+                const result = await req.db.collection('jobs').insertOne(newUser);
                 res.json(result);
             } catch (err) {
                 console.error('Error creating user:', err);
@@ -96,7 +98,7 @@ router.put('/job/update/:id', validateToken, async (req, res) => {
             const userId = req.params.id;
             const updatedUser = req.body;
             try {
-                const result = await req.db.collection('users').updateOne({ _id: new Object(userId) }, { $set: updatedUser });
+                const result = await req.db.collection('jobs').updateOne({ _id: new ObjectId(userId) }, { $set: updatedUser });
                 res.json(result);
             } catch (err) {
                 console.error('Error updating user:', err);
@@ -115,7 +117,7 @@ router.delete('/job/delete/:id', validateToken, async (req, res) => {
         } else {
             const userId = req.params.id;
             try {
-                const result = await req.db.collection('users').deleteOne({ _id: new Object(userId) });
+                const result = await req.db.collection('jobs').deleteOne({ _id: new ObjectId(userId) });
                 res.json(result);
             } catch (err) {
                 console.error('Error deleting user:', err);
@@ -124,18 +126,5 @@ router.delete('/job/delete/:id', validateToken, async (req, res) => {
         }
     });
 });
-
-function validateToken(req,res,next){
-    const bearerHeader = req.headers['authorization'];
-    //console.log(bearerHeader);
-    if(typeof bearerHeader !== 'undefined'){
-        const bearerToken = bearerHeader.split(" ");
-        const token = bearerToken[1];
-        req.token = token;
-        next();
-    }else{
-        res.sendStatus(403);
-    }
-}
 
 module.exports = router;

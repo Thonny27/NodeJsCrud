@@ -14,8 +14,9 @@ const corsOptions = {
 
 // Routes
 const userRoutes = require('./routes/UserRoutes');
+const jobRoutes = require('./routes/JobRoutes');
 const authRoutes = require('./routes/Auth');
-app.use('/api/v1', userRoutes,authRoutes);
+app.use('/api/v1', userRoutes,authRoutes,jobRoutes);
 
 // Cors middleware
 app.use(cors());

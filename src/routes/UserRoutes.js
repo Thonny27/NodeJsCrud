@@ -47,7 +47,7 @@ router.get('/users', validateToken, async (req, res) => {
 });
 
 // Obtener un usuario por ID
-router.get('/users/:id', validateToken, async (req, res) => {
+router.get('/user/find/:id', validateToken, async (req, res) => {
     jwt.verify(req.token, 'secret', async (err, data) => {
         if (err) {
             console.log(req.token);
@@ -89,7 +89,7 @@ router.post('/user/new', validateToken, async (req, res) => {
 });
 
 // Actualizar un usuario por ID
-router.put('/users/:id', validateToken, async (req, res) => {
+router.put('/user/update/:id', validateToken, async (req, res) => {
     jwt.verify(req.token, 'secret', async (err, data) => {
         if (err) {
             console.log(req.token);
@@ -109,7 +109,7 @@ router.put('/users/:id', validateToken, async (req, res) => {
 });
 
 // Eliminar un usuario por ID
-router.delete('/users/:id', validateToken, async (req, res) => {
+router.delete('/user/delete/:id', validateToken, async (req, res) => {
     jwt.verify(req.token, 'secret', async (err, data) => {
         if (err) {
             console.log(req.token);
