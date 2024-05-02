@@ -1,20 +1,31 @@
 const express = require('express');
-const userRoutes = require('./routes/user')
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 9000;
 
 // Middleware para analizar JSON
 app.use(express.json());
 
-// Rutas
-app.use('/api', userRoutes);
+// Cors options
+const corsOptions = {
+    origin: ["http://localhost:9000", "https://www.google.com", "https://123.223.44.1"],
+    methods: ["OPTION", "GET", "POST", "PUT", "DELETE"]
+};
 
-// Ruta de bienvenida
+// Routes
+const userRoutes = require('./routes/UserRoutes');
+const authRoutes = require('./routes/Auth');
+app.use('/api/v1', userRoutes,authRoutes);
+
+// Cors middleware
+app.use(cors(corsOptions));
+
+// Ruta de prueba
 app.get('/', (req, res) => {
-    res.send('Welcome to my API');
+    res.send('***** Prueba Test NodeJs *****');
 });
 
-// Iniciar el servidor
+// Inicio del server
 app.listen(port, () => {
     console.log('Server listening on port', port);
 });

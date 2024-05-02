@@ -1,31 +1,18 @@
-require('dotenv').config(); // Cargar las variables de entorno desde .env
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
-const express = require('express');
-const UserRoutes = require('./routes/user');
-const Database = require('./config/Database');
-const UserController = require('./controllers/UserController');
+const url = process.env.MONGODB_URI;
+const client = new MongoClient(url);
 
-const app = express();
-const port = process.env.PORT || 9000;
-const url = process.env.MONGODB_URL;
-const dbName = process.env.DB_NAME;
-const secretKey = process.env.SECRET_KEY;
+async function connectDB() {
+    try {
+        await client.connect();
+        console.log('Connected to the database');
+        return client.db();
+    } catch (err) {
+        console.error('Error connecting to the database:', err);
+        throw err;
+    }
+}
 
-const db = new Database(url, dbName);
-const userController = new UserController(db);
-const userRoutes = new UserRoutes(userController);
-
-app.use(express.json());
-
-app.use('/api', userRoutes.getRouter());
-
-app.get('/', (req, res) => {
-    res.send('Welcome to my API');
-});
-
-(async () => {
-    await db.connect();
-    app.listen(port, () => {
-        console.log('Server listening on port', port);
-    });
-})();
+module.exports = { connectDB };

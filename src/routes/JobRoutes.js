@@ -1,0 +1,141 @@
+const express = require('express');
+const router = express.Router();
+const { connectDB } = require('../config/Database');
+const jwt = require('jsonwebtoken');
+
+// Middleware para conectar a la base de datos antes de cada solicitud
+router.use(async (req, res, next) => {
+    try {
+        req.db = await connectDB();
+        next();
+    } catch (err) {
+        console.error('Error connecting to the database:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Obtener todos los usuarios
+router.get('/jobs', validateToken, async (req, res) => {
+    jwt.verify(req.token, 'secret', async (err, data) => {
+        if (err) {
+            console.log(req.token);
+            res.sendStatus(403);
+        } else {
+            const page = parseInt(req.query.page) || 1;
+            const pageSize = parseInt(req.query.pageSize) || 10;
+            const skip = (page - 1) * pageSize;
+            
+            try {
+                const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+                const users = await req.db.collection('users')
+                    .find()
+                    .skip(skip)
+                    .limit(pageSize)
+                    .sort({name: sortOrder})
+                    .toArray();
+                    setTimeout(() => {
+                        res.json(users);
+                    }, 1000); 
+            } catch (err) {
+                console.error('Error getting users:', err);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }
+    });
+});
+
+// Obtener un usuario por ID
+router.get('/job/:id', validateToken, async (req, res) => {
+    jwt.verify(req.token, 'secret', async (err, data) => {
+        if (err) {
+            console.log(req.token);
+            res.sendStatus(403);
+        } else {
+            const userId = req.params.id;
+            try {
+                const user = await req.db.collection('users').findOne({ _id: new Object(userId) });
+                if (!user) {
+                    res.status(404).json({ message: 'User not found' });
+                    return;
+                }
+                res.json(user);
+            } catch (err) {
+                console.error('Error getting user by ID:', err);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }
+    });
+});
+
+// Crear un nuevo usuario
+router.post('/job/add', validateToken, async (req, res) => {
+    jwt.verify(req.token, 'secret', async (err, data) => {
+        if (err) {
+            console.log(req.token);
+            res.sendStatus(403);
+        } else {
+            const newUser = req.body;
+            try {
+                const result = await req.db.collection('users').insertOne(newUser);
+                res.json(result);
+            } catch (err) {
+                console.error('Error creating user:', err);
+                res.status(500).json({ message: 'Internal server error', error: err.message });
+            }
+        }
+    });
+});
+
+// Actualizar un usuario por ID
+router.put('/job/update/:id', validateToken, async (req, res) => {
+    jwt.verify(req.token, 'secret', async (err, data) => {
+        if (err) {
+            console.log(req.token);
+            res.sendStatus(403);
+        } else {
+            const userId = req.params.id;
+            const updatedUser = req.body;
+            try {
+                const result = await req.db.collection('users').updateOne({ _id: new Object(userId) }, { $set: updatedUser });
+                res.json(result);
+            } catch (err) {
+                console.error('Error updating user:', err);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }
+    });
+});
+
+// Eliminar un usuario por ID
+router.delete('/job/delete/:id', validateToken, async (req, res) => {
+    jwt.verify(req.token, 'secret', async (err, data) => {
+        if (err) {
+            console.log(req.token);
+            res.sendStatus(403);
+        } else {
+            const userId = req.params.id;
+            try {
+                const result = await req.db.collection('users').deleteOne({ _id: new Object(userId) });
+                res.json(result);
+            } catch (err) {
+                console.error('Error deleting user:', err);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }
+    });
+});
+
+function validateToken(req,res,next){
+    const bearerHeader = req.headers['authorization'];
+    //console.log(bearerHeader);
+    if(typeof bearerHeader !== 'undefined'){
+        const bearerToken = bearerHeader.split(" ");
+        const token = bearerToken[1];
+        req.token = token;
+        next();
+    }else{
+        res.sendStatus(403);
+    }
+}
+
+module.exports = router;
