@@ -18,7 +18,7 @@ router.use(async (req, res, next) => {
 
 // Obtener todos los usuarios
 router.get('/users', validateToken, async (req, res) => {
-    jwt.verify(req.token, 'secret', async (err, data) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, data) => {
         if (err) {
             console.log(req.token);
             res.sendStatus(403);
@@ -48,7 +48,7 @@ router.get('/users', validateToken, async (req, res) => {
 
 // Obtener un usuario por ID
 router.get('/user/find/:id', validateToken, async (req, res) => {
-    jwt.verify(req.token, 'secret', async (err, data) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, data) => {
         if (err) {
             console.log(req.token);
             res.sendStatus(403);
@@ -71,7 +71,7 @@ router.get('/user/find/:id', validateToken, async (req, res) => {
 
 // Crear un nuevo usuario
 router.post('/user/new', validateToken, async (req, res) => {
-    jwt.verify(req.token, 'secret', async (err, data) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, data) => {
         if (err) {
             console.log(req.token);
             res.sendStatus(403);
@@ -90,7 +90,7 @@ router.post('/user/new', validateToken, async (req, res) => {
 
 // Actualizar un usuario por ID
 router.put('/user/update/:id', validateToken, async (req, res) => {
-    jwt.verify(req.token, 'secret', async (err, data) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, data) => {
         if (err) {
             console.log(req.token);
             res.sendStatus(403);
@@ -110,7 +110,7 @@ router.put('/user/update/:id', validateToken, async (req, res) => {
 
 // Eliminar un usuario por ID
 router.delete('/user/delete/:id', validateToken, async (req, res) => {
-    jwt.verify(req.token, 'secret', async (err, data) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, data) => {
         if (err) {
             console.log(req.token);
             res.sendStatus(403);
