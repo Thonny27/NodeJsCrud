@@ -18,7 +18,7 @@ const authRoutes = require('./routes/Auth');
 app.use('/api/v1', userRoutes,authRoutes);
 
 // Cors middleware
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Ruta de prueba
 app.get('/', (req, res) => {
